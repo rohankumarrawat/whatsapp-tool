@@ -42,7 +42,7 @@ const path = require('path');
 // Serve frontend in production
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-app.get('*', (req, res) => {
+app.use((req, res, next) => {
   res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
 });
 

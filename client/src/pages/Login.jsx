@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
 import api from '../utils/api';
 
 export default function Login() {
@@ -14,48 +14,48 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
     try {
       const { data } = await api.post('/auth/login', { email, password });
       localStorage.setItem('user', JSON.stringify(data));
       if (data.role === 'admin') navigate('/admin');
       else navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="w-full flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-violet-50">
-      <div className="w-full max-w-md glass-panel p-8">
+    <div className="login-bg p-4">
+      <div className="login-card">
+        {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4">
-            <Lock className="w-8 h-8" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4"
+            style={{ background: 'linear-gradient(135deg, #25d366 0%, #128c7e 100%)', boxShadow: '0 0 25px rgba(37,211,102,0.35)' }}>
+            <span className="text-2xl">💬</span>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Welcome Back</h2>
-          <p className="text-sm text-gray-500 mt-2">Sign in to your dashboard</p>
+          <h1 className="text-2xl font-bold text-white mb-1">Welcome back</h1>
+          <p className="text-sm" style={{ color: '#64748b' }}>Sign in to your marketing dashboard</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">
-            {error}
+          <div className="mb-5 p-3 rounded-xl text-sm flex items-start gap-2"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
+            <span>⚠️</span> {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+            <label className="form-label">Email address</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
-              </div>
+              <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#475569' }} />
               <input
-                type="email"
-                required
-                className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white/50 backdrop-blur-sm"
-                placeholder="admin@example.com"
+                type="email" required
+                className="form-input"
+                style={{ paddingLeft: '2.25rem' }}
+                placeholder="admin@marketing.local"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -63,15 +63,13 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="form-label">Password</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
-              </div>
+              <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#475569' }} />
               <input
-                type="password"
-                required
-                className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white/50 backdrop-blur-sm"
+                type="password" required
+                className="form-input"
+                style={{ paddingLeft: '2.25rem' }}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -82,12 +80,17 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+            className="btn btn-primary w-full justify-center py-3 mt-2"
           >
-            {loading ? 'Signing in...' : 'Sign in'}
-            {!loading && <ArrowRight className="ml-2 w-4 h-4" />}
+            {loading ? <><Loader2 size={16} className="animate-spin" /> Signing in...</> : <><span>Sign In</span><ArrowRight size={16} /></>}
           </button>
         </form>
+
+        <div className="mt-6 pt-5 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <p className="text-xs" style={{ color: '#334155' }}>
+            Default admin: <span style={{ color: '#64748b' }}>admin@marketing.local</span>
+          </p>
+        </div>
       </div>
     </div>
   );

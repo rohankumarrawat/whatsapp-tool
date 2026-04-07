@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserPlus, Settings, LogOut } from 'lucide-react';
+import { UserPlus, Settings, LogOut, Shield } from 'lucide-react';
 import api from '../utils/api';
 
 export default function AdminDashboard() {
@@ -14,12 +14,10 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       const { data } = await api.post('/auth/register', { name, email, password, role: 'user' });
-      setMsg(`User ${data.name} created successfully!`);
-      setName('');
-      setEmail('');
-      setPassword('');
+      setMsg({ type: 'success', text: `✅ User "${data.name}" created successfully!` });
+      setName(''); setEmail(''); setPassword('');
     } catch (err) {
-      setMsg(err.response?.data?.message || 'Error creating user');
+      setMsg({ type: 'error', text: err.response?.data?.message || 'Error creating user' });
     }
   };
 
@@ -29,73 +27,76 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="p-8 w-full max-w-4xl mx-auto space-y-8">
-      <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800">Admin Control Panel</h2>
-          <p className="text-slate-500">Manage marketers and settings</p>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors font-medium"
-        >
-          <LogOut size={18} />
-          Logout
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="glass-panel p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <UserPlus className="text-indigo-500" size={24} />
-            <h3 className="text-xl font-semibold text-slate-800">Create Sub-User</h3>
+    <div className="login-bg p-6" style={{ alignItems: 'flex-start', paddingTop: '4rem' }}>
+      <div style={{ width: '100%', maxWidth: '900px', margin: '0 auto' }}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}>
+              <Shield size={20} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white">Admin Control Panel</h1>
+              <p className="text-xs" style={{ color: '#475569' }}>Manage users and system settings</p>
+            </div>
           </div>
-          
-          {msg && <div className="mb-4 p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm">{msg}</div>}
-
-          <form onSubmit={handleCreateUser} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-              <input
-                type="text" required
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                value={name} onChange={e => setName(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-              <input
-                type="email" required
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                value={email} onChange={e => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-              <input
-                type="password" required
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                value={password} onChange={e => setPassword(e.target.value)}
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-colors mt-2"
-            >
-              Provision Account
-            </button>
-          </form>
+          <button onClick={handleLogout} className="btn btn-secondary">
+            <LogOut size={15} /> Sign Out
+          </button>
         </div>
 
-        <div className="glass-panel p-8 opacity-50 relative pointer-events-none">
-          <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-[2px] rounded-2xl z-10">
-            <span className="font-semibold text-slate-600 bg-white px-4 py-2 rounded-full shadow-sm">Coming Soon</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Create User */}
+          <div className="card">
+            <h3 className="text-sm font-semibold text-white mb-5 flex items-center gap-2">
+              <UserPlus size={16} style={{ color: '#25d366' }} /> Create Sub-User
+            </h3>
+
+            {msg && (
+              <div className="mb-4 p-3 rounded-xl text-sm"
+                style={{
+                  background: msg.type === 'success' ? 'rgba(37,211,102,0.08)' : 'rgba(239,68,68,0.08)',
+                  border: `1px solid ${msg.type === 'success' ? 'rgba(37,211,102,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                  color: msg.type === 'success' ? '#25d366' : '#f87171'
+                }}>
+                {msg.text}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateUser} className="space-y-4">
+              <div>
+                <label className="form-label">Full Name</label>
+                <input type="text" required className="form-input" placeholder="John Doe" value={name} onChange={e => setName(e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">Email Address</label>
+                <input type="email" required className="form-input" placeholder="user@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">Password</label>
+                <input type="password" required className="form-input" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
+              </div>
+              <button type="submit" className="btn btn-primary w-full justify-center py-2.5 mt-1">
+                <UserPlus size={15} /> Provision Account
+              </button>
+            </form>
           </div>
-          <div className="flex items-center gap-3 mb-6">
-            <Settings className="text-slate-500" size={24} />
-            <h3 className="text-xl font-semibold text-slate-800">System Logs</h3>
+
+          {/* Coming Soon */}
+          <div className="card relative overflow-hidden" style={{ opacity: 0.5, pointerEvents: 'none' }}>
+            <div className="absolute inset-0 flex items-center justify-center z-10 rounded-2xl"
+              style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)' }}>
+              <span className="px-4 py-2 rounded-full text-sm font-semibold text-white"
+                style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                Coming Soon
+              </span>
+            </div>
+            <h3 className="text-sm font-semibold text-white mb-5 flex items-center gap-2">
+              <Settings size={16} style={{ color: '#64748b' }} /> System Logs
+            </h3>
+            <p className="text-sm" style={{ color: '#475569' }}>Global campaign monitoring and analytics will appear here in the next update.</p>
           </div>
-          <p className="text-slate-500 text-sm">Global campaign monitoring and analytics will appear here in the next update.</p>
         </div>
       </div>
     </div>
